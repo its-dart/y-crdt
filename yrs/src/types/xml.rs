@@ -367,6 +367,31 @@ where
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct XmlTextRef(BranchPtr);
 
+impl XmlTextRef {
+    pub fn successors(&self) -> Option<Vec<&ItemContent>> {
+        let mut children: Vec<&ItemContent> = vec![];
+        let first = self.as_ref().first()?;
+        let mut n = Some(first);
+        // walk right or up in the tree
+        while let Some(current) = n {
+            children.push(&current.content);
+            if let Some(right) = current.right.as_ref() {
+                n = right.as_item();
+            } else if current.parent == first.parent {
+                n = None;
+            } else {
+                let ptr = current.parent.as_branch().unwrap();
+                n = if let Some(Block::Item(item)) = ptr.item.as_deref() {
+                    Some(item)
+                } else {
+                    None
+                };
+            }
+        }
+        Some(children)
+    }
+}
+
 impl Xml for XmlTextRef {}
 impl Text for XmlTextRef {}
 impl IndexedSequence for XmlTextRef {}
@@ -394,6 +419,12 @@ impl Observable for XmlTextRef {
         } else {
             None
         }
+    }
+}
+
+impl Into<MapRef> for XmlTextRef {
+    fn into(self) -> MapRef {
+        MapRef::from(self.0)
     }
 }
 
@@ -556,6 +587,12 @@ impl Observable for XmlFragmentRef {
         } else {
             None
         }
+    }
+}
+
+impl Into<MapRef> for XmlFragmentRef {
+    fn into(self) -> MapRef {
+        MapRef::from(self.0)
     }
 }
 
