@@ -403,6 +403,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib0"
+version = "0.16.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29dc19a026a0d45fc391898c6d4a6d0a5aab5ae6a826ebddc0f33572ffdae8dc"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1207,7 +1216,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 name = "yffi"
 version = "0.16.10"
 dependencies = [
- "lib0",
+ "lib0 0.16.10",
  "rand 0.7.3",
  "yrs",
 ]
@@ -1219,7 +1228,7 @@ dependencies = [
  "atomic_refcell",
  "criterion",
  "flate2",
- "lib0",
+ "lib0 0.16.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3",
  "ropey",
  "serde",
@@ -1235,7 +1244,7 @@ version = "0.16.10"
 dependencies = [
  "console_error_panic_hook",
  "js-sys",
- "lib0",
+ "lib0 0.16.10",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "wee_alloc",
