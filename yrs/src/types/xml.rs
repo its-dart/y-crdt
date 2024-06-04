@@ -741,7 +741,7 @@ pub trait Xml: AsRef<Branch> {
     fn insert_attribute<K, V>(&self, txn: &mut TransactionMut, attr_name: K, attr_value: V)
     where
         K: Into<Arc<str>>,
-        V: Into<String>,
+        V: Into<Any>,
     {
         let key = attr_name.into();
         let value = attr_value.into();
