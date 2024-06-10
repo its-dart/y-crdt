@@ -228,6 +228,30 @@ pub trait Text: AsRef<Branch> {
         }
     }
 
+    /// Inserts a `map` with attributes at a given `index` (all Text leaf nodes of YDoc tree build with Lexical have this map).
+    /// If `index` is `0`, this `map` will be inserted at the beginning of a current text.
+    /// If `index` is equal to current data structure length, this `map` will be appended at
+    /// the end of it.
+    ///
+    /// This method will panic if provided `index` is greater than the length of a current text.
+    fn insert_map(&self, txn: &mut TransactionMut, index: u32, map: HashMap<String, Any>) {
+        let this = BranchPtr::from(self.as_ref());
+        if let Some(mut pos) = find_position(this, txn, index) {
+            let value = MapPrelim::from(map);
+            while let Some(right) = pos.right.as_ref() {
+                if right.is_deleted() {
+                    // skip over deleted blocks, just like Yjs does
+                    pos.forward();
+                } else {
+                    break;
+                }
+            }
+            txn.create_item(&pos, value, None);
+        } else {
+            panic!("The type or the position doesn't exist!");
+        }
+    }
+
     /// Inserts a `chunk` of text at a given `index`.
     /// If `index` is `0`, this `chunk` will be inserted at the beginning of a current text.
     /// If `index` is equal to current data structure length, this `chunk` will be appended at
@@ -329,6 +353,12 @@ pub trait Text: AsRef<Branch> {
     fn push(&self, txn: &mut TransactionMut, chunk: &str) {
         let idx = self.len(txn);
         self.insert(txn, idx, chunk)
+    }
+
+    /// Appends a given `map` with attributes at the end of a current text structure.
+    fn push_map(&self, txn: &mut TransactionMut, map: HashMap<String, Any>) {
+        let idx = self.len(txn);
+        self.insert_map(txn, idx, map)
     }
 
     /// Removes up to a `len` characters from a current text structure, starting at given `index`.
