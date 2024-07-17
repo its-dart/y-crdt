@@ -79,6 +79,9 @@ pub fn set_panic_hook() {
 #[wasm_bindgen]
 pub struct YDoc(Doc);
 
+unsafe impl Send for YDoc {}
+unsafe impl Sync for YDoc {}
+
 impl AsRef<Doc> for YDoc {
     fn as_ref(&self) -> &Doc {
         &self.0
