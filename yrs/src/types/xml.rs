@@ -272,6 +272,12 @@ impl XmlElementRef {
     }
 }
 
+impl Into<MapRef> for XmlElementRef {
+    fn into(self) -> MapRef {
+        MapRef::from(self.0)
+    }
+}
+
 impl GetString for XmlElementRef {
     /// Converts current XML node into a textual representation. This representation if flat, it
     /// doesn't include any indentation.
@@ -559,6 +565,35 @@ impl XmlTextRef {
         }
         buf
     }
+
+    /// Returns an optional vector of references to the content of all children of the current XML text node.
+    /// It does NOT include nested children of its children.
+    pub fn children(&self) -> Option<Vec<&ItemContent>> {
+        let branch: &Branch = self.as_ref();
+
+        if let Some(first) = branch.first() {
+            let mut children: Vec<&ItemContent> = vec![];
+            let mut n = Some(first);
+
+            while let Some(current) = n {
+                if !current.is_deleted() {
+                    children.push(&current.content);
+                }
+                if let Some(right) = current.right.as_ref() {
+                    n = Some(right);
+                } else if current.parent == first.parent {
+                    n = None;
+                } else {
+                    let ptr = current.parent.as_branch().unwrap();
+                    n = ptr.item.as_deref();
+                }
+            }
+
+            return Some(children);
+        }
+
+        None
+    }
 }
 
 impl SharedRef for XmlTextRef {}
@@ -578,6 +613,12 @@ impl AsRef<TextRef> for XmlTextRef {
 impl DeepObservable for XmlTextRef {}
 impl Observable for XmlTextRef {
     type Event = XmlTextEvent;
+}
+
+impl Into<MapRef> for XmlTextRef {
+    fn into(self) -> MapRef {
+        MapRef::from(self.0)
+    }
 }
 
 impl GetString for XmlTextRef {
@@ -783,6 +824,7 @@ impl RootRef for XmlFragmentRef {
     }
 }
 impl SharedRef for XmlFragmentRef {}
+impl Xml for XmlFragmentRef {}
 impl XmlFragment for XmlFragmentRef {}
 impl IndexedSequence for XmlFragmentRef {}
 
@@ -798,6 +840,12 @@ impl AsRef<ArrayRef> for XmlFragmentRef {
     #[inline]
     fn as_ref(&self) -> &ArrayRef {
         unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<MapRef> for XmlFragmentRef {
+    fn into(self) -> MapRef {
+        MapRef::from(self.0)
     }
 }
 
@@ -992,7 +1040,7 @@ pub trait Xml: AsRef<Branch> {
     fn insert_attribute<K, V>(&self, txn: &mut TransactionMut, attr_name: K, attr_value: V)
     where
         K: Into<Arc<str>>,
-        V: Into<String>,
+        V: Into<Any>,
     {
         let key = attr_name.into();
         let value = attr_value.into();
