@@ -236,6 +236,11 @@ impl TryFrom<ItemPtr> for XmlOut {
 #[derive(Debug, Clone)]
 pub struct XmlElementRef(BranchPtr);
 
+impl RootRef for XmlElementRef {
+    fn type_ref() -> TypeRef {
+        TypeRef::XmlFragment
+    }
+}
 impl SharedRef for XmlElementRef {}
 impl Xml for XmlElementRef {}
 impl XmlFragment for XmlElementRef {}

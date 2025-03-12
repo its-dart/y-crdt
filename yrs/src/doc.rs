@@ -10,7 +10,7 @@ use crate::updates::encoder::{Encode, Encoder};
 use crate::utils::OptionExt;
 use crate::{
     uuid_v4, uuid_v4_from, ArrayRef, BranchID, MapRef, Out, ReadTxn, TextRef, Transact,
-    TransactionAcqError, Uuid, WriteTxn, XmlFragmentRef,
+    TransactionAcqError, Uuid, WriteTxn, XmlElementRef, XmlFragmentRef,
 };
 use crate::{Any, Subscription};
 use std::collections::HashMap;
@@ -230,6 +230,28 @@ impl Doc {
     /// types during the document creation.
     pub fn get_or_insert_array<N: Into<Arc<str>>>(&self, name: N) -> ArrayRef {
         ArrayRef::root(name).get_or_create(&mut self.transact_mut())
+    }
+
+    /// Returns a [XmlElementRef] data structure stored under a given `name`. XML elements represent
+    /// nodes of XML document. They can contain attributes (key-value pairs, both of string type)
+    /// and other nested XML elements or text values, which are stored in their insertion
+    /// order.
+    ///
+    /// If no structure under defined `name` existed before, it will be created and returned
+    /// instead.
+    ///
+    /// If a structure under defined `name` already existed, but its type was different it will be
+    /// reinterpreted as a XML element (in such case a map component of complex data type will be
+    /// interpreted as map of its attributes, while a sequence component - as a list of its child
+    /// XML nodes).
+    ///
+    /// # Panics
+    ///
+    /// This method requires exclusive access to an underlying document store. If there
+    /// is another transaction in process, it will panic. It's advised to define all root shared
+    /// types during the document creation.
+    pub fn get_or_insert_xml_element<N: Into<Arc<str>>>(&self, name: N) -> XmlElementRef {
+        XmlElementRef::root(name).get_or_create(&mut self.transact_mut())
     }
 
     /// Returns a [XmlFragmentRef] data structure stored under a given `name`. XML elements represent
