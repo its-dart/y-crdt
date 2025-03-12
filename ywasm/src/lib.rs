@@ -43,8 +43,8 @@ pub use crate::undo::YUndoManager as UndoManager;
 pub use crate::weak::YWeakLink as WeakLink;
 pub use crate::weak::YWeakLinkEvent as WeakLinkEvent;
 
-unsafe impl Send for YDoc {}
-unsafe impl Sync for YDoc {}
+unsafe impl Send for Doc {}
+unsafe impl Sync for Doc {}
 
 /// When called will call console log errors whenever internal panic is called from within
 /// WebAssembly module.
