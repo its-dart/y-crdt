@@ -221,6 +221,13 @@ impl Update {
                             }
                         }
                         let should_delete = block.integrate(txn, offset);
+                        if let BlockCarrier::Block(block) = &mut block {
+                            if let Block::Item(item) = block.as_ref() {
+                                if item.parent == TypePtr::Unknown {
+                                    **block = Block::GC(BlockRange::new(item.id, item.len));
+                                }
+                            }
+                        }
                         let delete_ptr = if should_delete {
                             let ptr = block.as_block_ptr();
                             ptr

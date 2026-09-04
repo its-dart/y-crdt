@@ -391,7 +391,7 @@ impl BlockPtr {
                             None
                         }
                     }
-                    _ => None,
+                    TypePtr::Unknown => return true,
                 };
 
                 let left: Option<&Block> = this.left.as_deref();
